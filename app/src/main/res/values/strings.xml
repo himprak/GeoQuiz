@@ -1,9 +1,9 @@
 <resources>
     <string name="app_name">GeoQuiz</string>
 
-    <string name="question_india">Dhaka is the capital of Bangladesh.</string>
-    <string name="question_microsoft">Steve Jobs is the founder of Microsoft.</string>
-    <string name="question_zero">Aryabhatta invented the mathematical concept of zero.</string>
+    <string name="question_india">Dhaka is the capital of India</string>
+    <string name="question_microsoft">Steve Jobs is the founder of Microsoft</string>
+    <string name="question_zero">Aryabhatta invented the mathematical concept of zero</string>
 
     <string name="true_button">True</string>
     <string name="false_button">False</string>
