@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">GeoQuiz</string>
 
-    <string name="question_india">New Delhi is the capital of Bangladesh.</string>
+    <string name="question_india">Dhaka is the capital of Bangladesh.</string>
     <string name="question_microsoft">Steve Jobs is the founder of Microsoft.</string>
     <string name="question_zero">Aryabhatta invented the mathematical concept of zero.</string>
 
