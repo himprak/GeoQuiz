@@ -18,7 +18,7 @@ class MainActivity : AppCompatActivity() {
                                       Question(R.string.question_zero, true))
 
     private var currentIndex = 0
-
+    private val doneIndices = mutableSetOf<Int>()
     private lateinit var trueButton : Button
     private lateinit var falseButton : Button
     private lateinit var nextButton : ImageButton
@@ -36,10 +36,9 @@ class MainActivity : AppCompatActivity() {
         questionTextView = findViewById(R.id.question_text_view)
         prevButton = findViewById(R.id.prev_button)
 
-        trueButton.setOnClickListener { view : View ->
+        trueButton.setOnClickListener { view: View ->
             checkAnswer(true)
         }
-
         falseButton.setOnClickListener { view : View ->
             checkAnswer(false)
         }
@@ -64,6 +63,12 @@ class MainActivity : AppCompatActivity() {
     private fun updateQuestion() {
         val questionTextResId = questionBank[currentIndex].textResId
         questionTextView.setText(questionTextResId)
+        if(doneIndices.contains(currentIndex)) {
+            disableAnswers()
+        }
+        else {
+            enableAnswers()
+        }
     }
 
     private fun checkAnswer(userAnswer : Boolean) {
@@ -73,7 +78,28 @@ class MainActivity : AppCompatActivity() {
         } else {
             R.string.incorrect_toast
         }
+        if(userAnswer == correctAnswer) {
+            doneIndices.add(currentIndex)
+            disableAnswers()
+        }
+        else {
+            enableAnswers()
+        }
         Toast.makeText(this, messageId, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun enableAnswers() {
+        trueButton.isEnabled = true
+        trueButton.isClickable = true
+        falseButton.isEnabled = true
+        falseButton.isClickable = true
+    }
+
+    private fun disableAnswers() {
+        trueButton.isEnabled = false
+        trueButton.isClickable = false
+        falseButton.isEnabled = false
+        falseButton.isClickable = false
     }
 
     override fun onStart() {
