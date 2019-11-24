@@ -8,18 +8,16 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
+import androidx.lifecycle.ViewModelProviders
 
 private const val TAG = "MainActivity"
 
 class MainActivity : AppCompatActivity() {
 
-    private val questionBank = listOf(Question(R.string.question_india, false),
-                                      Question(R.string.question_microsoft, false),
-                                      Question(R.string.question_zero, true))
+    private val quizViewModel : QuizViewModel by lazy {
+        ViewModelProviders.of(this).get(QuizViewModel::class.java)
+    }
 
-    private var currentIndex = 0
-    private val doneIndices = mutableSetOf<Int>()
-    private var score = 0
     private lateinit var trueButton : Button
     private lateinit var falseButton : Button
     private lateinit var nextButton : ImageButton
@@ -32,7 +30,7 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "onCreate(Bundle?) called")
         setContentView(R.layout.activity_main)
 
-        trueButton = findViewById(R.id.true_button)
+        trueButton = findViewById<Button>(R.id.true_button)
         falseButton = findViewById(R.id.false_button)
         nextButton = findViewById(R.id.next_button)
         questionTextView = findViewById(R.id.question_text_view)
@@ -47,16 +45,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         nextButton.setOnClickListener {
-            currentIndex = (currentIndex + 1) % questionBank.size
+            quizViewModel.moveToNext()
             updateQuestion()
         }
 
         prevButton.setOnClickListener {
-            if(currentIndex == 0) {
-                currentIndex = questionBank.size - 1
-            } else {
-                currentIndex = currentIndex - 1
-            }
+            quizViewModel.moveToPrev()
             updateQuestion()
         }
 
@@ -65,9 +59,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateQuestion() {
-        val questionTextResId = questionBank[currentIndex].textResId
+        val questionTextResId = quizViewModel.currentQuestionText
         questionTextView.setText(questionTextResId)
-        if(doneIndices.contains(currentIndex)) {
+        if(quizViewModel.questionAttempted()) {
             disableAnswers()
         }
         else {
@@ -76,12 +70,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkAnswer(userAnswer : Boolean) {
-        val correctAnswer = questionBank[currentIndex].answer
-        doneIndices.add(currentIndex)
+        val correctAnswer = quizViewModel.currentQuestionAnswer
+        quizViewModel.markQuestionAttempted()
         disableAnswers()
         val messageId:Int
         if(userAnswer == correctAnswer) {
-            score += 1
+            quizViewModel.incrementScore()
             messageId = R.string.correct_toast
         }
         else {
@@ -93,7 +87,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun showScore() {
         var scoreStr = "Score "
-        scoreStr = scoreStr.plus(score.toString()).plus("/").plus(doneIndices.size)
+        scoreStr = scoreStr.plus(quizViewModel.currentScore().toString()).plus("/").plus(quizViewModel.numAttempts())
         scoreView.setText(scoreStr)
     }
 
