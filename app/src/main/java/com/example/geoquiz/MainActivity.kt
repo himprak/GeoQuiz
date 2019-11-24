@@ -19,11 +19,13 @@ class MainActivity : AppCompatActivity() {
 
     private var currentIndex = 0
     private val doneIndices = mutableSetOf<Int>()
+    private var score = 0
     private lateinit var trueButton : Button
     private lateinit var falseButton : Button
     private lateinit var nextButton : ImageButton
     private lateinit var prevButton : ImageButton
     private lateinit var questionTextView : TextView
+    private lateinit var scoreView : TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +36,7 @@ class MainActivity : AppCompatActivity() {
         falseButton = findViewById(R.id.false_button)
         nextButton = findViewById(R.id.next_button)
         questionTextView = findViewById(R.id.question_text_view)
+        scoreView = findViewById(R.id.score_view)
         prevButton = findViewById(R.id.prev_button)
 
         trueButton.setOnClickListener { view: View ->
@@ -58,6 +61,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         updateQuestion()
+        showScore()
     }
 
     private fun updateQuestion() {
@@ -73,19 +77,24 @@ class MainActivity : AppCompatActivity() {
 
     private fun checkAnswer(userAnswer : Boolean) {
         val correctAnswer = questionBank[currentIndex].answer
-        val messageId = if(userAnswer == correctAnswer) {
-            R.string.correct_toast
-        } else {
-            R.string.incorrect_toast
-        }
+        doneIndices.add(currentIndex)
+        disableAnswers()
+        val messageId:Int
         if(userAnswer == correctAnswer) {
-            doneIndices.add(currentIndex)
-            disableAnswers()
+            score += 1
+            messageId = R.string.correct_toast
         }
         else {
-            enableAnswers()
+            messageId = R.string.incorrect_toast
         }
+        showScore()
         Toast.makeText(this, messageId, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showScore() {
+        var scoreStr = "Score "
+        scoreStr = scoreStr.plus(score.toString()).plus("/").plus(doneIndices.size)
+        scoreView.setText(scoreStr)
     }
 
     private fun enableAnswers() {
