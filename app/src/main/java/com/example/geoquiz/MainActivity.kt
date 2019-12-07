@@ -2,6 +2,7 @@ package com.example.geoquiz
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
@@ -29,6 +30,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate(Bundle?) called")
         setContentView(R.layout.activity_main)
+
+        quizViewModel.currentIndex = savedInstanceState?.getInt("CurrentIndex", 0)?:0
+        quizViewModel.score = savedInstanceState?.getInt("Score", 0)?:0
+        quizViewModel.doneIndices.addAll(savedInstanceState?.getIntegerArrayList("DoneIndices")?:ArrayList<Int>())
 
         trueButton = findViewById<Button>(R.id.true_button)
         falseButton = findViewById(R.id.false_button)
@@ -128,6 +133,16 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "onDestroy() called")
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        Log.d(TAG, "onSaveInstanceState")
+        outState.putInt("Score", quizViewModel.score)
+        outState.putInt("CurrentIndex", quizViewModel.currentIndex)
+        val doneIndices = ArrayList<Int>()
+        doneIndices.addAll(quizViewModel.doneIndices)
+        outState.putIntegerArrayList("DoneIndices", doneIndices)
     }
 }
 
