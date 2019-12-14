@@ -1,5 +1,7 @@
 package com.example.geoquiz
 
+import android.app.Activity
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.PersistableBundle
@@ -12,6 +14,7 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModelProviders
 
 private const val TAG = "MainActivity"
+private const val REQUEST_CODE_CHEAT = 0
 
 class MainActivity : AppCompatActivity() {
 
@@ -25,6 +28,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var prevButton : ImageButton
     private lateinit var questionTextView : TextView
     private lateinit var scoreView : TextView
+    private lateinit var cheatButton : Button
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +46,7 @@ class MainActivity : AppCompatActivity() {
         questionTextView = findViewById(R.id.question_text_view)
         scoreView = findViewById(R.id.score_view)
         prevButton = findViewById(R.id.prev_button)
+        cheatButton = findViewById(R.id.cheat_button)
 
         trueButton.setOnClickListener { view: View ->
             checkAnswer(true)
@@ -48,19 +54,32 @@ class MainActivity : AppCompatActivity() {
         falseButton.setOnClickListener { view : View ->
             checkAnswer(false)
         }
-
         nextButton.setOnClickListener {
             quizViewModel.moveToNext()
             updateQuestion()
         }
-
         prevButton.setOnClickListener {
             quizViewModel.moveToPrev()
             updateQuestion()
         }
+        cheatButton.setOnClickListener {
+            val intent = CheatActivity.newIntent(this, quizViewModel.currentQuestionAnswer)
+            startActivityForResult(intent, REQUEST_CODE_CHEAT)
+        }
 
         updateQuestion()
         showScore()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if(resultCode != Activity.RESULT_OK) {
+            return
+        }
+        if(requestCode == REQUEST_CODE_CHEAT) {
+            quizViewModel.isCheater =
+                data?.getBooleanExtra(EXTRA_ANSWER_SHOWN, false) ?: false
+        }
     }
 
     private fun updateQuestion() {
@@ -79,11 +98,12 @@ class MainActivity : AppCompatActivity() {
         quizViewModel.markQuestionAttempted()
         disableAnswers()
         val messageId:Int
-        if(userAnswer == correctAnswer) {
+        if(quizViewModel.isCheater) {
+            messageId = R.string.judgement_toast
+        } else if(userAnswer == correctAnswer) {
             quizViewModel.incrementScore()
             messageId = R.string.correct_toast
-        }
-        else {
+        } else {
             messageId = R.string.incorrect_toast
         }
         showScore()
